@@ -1,3 +1,5 @@
+const { CreepOrder } = require("utils/creepfactory");
+
 module.exports = {
   gc(){
       for(var i in Memory.creeps) {
@@ -19,7 +21,7 @@ module.exports = {
       }
       if (creep.memory.renew) {
           creep.say("Renew " + creep.ticksToLive)
-          const spawn = Game.spawns.Spawn1;
+          const spawn = creep.room.find(FIND_MY_SPAWNS)[0] || Game.spawns.Spawn1;
           if (creep.pos.inRangeTo(spawn, 1)){ //check range so creep moves even if spawn is busy
               const res = spawn.renewCreep(creep);
               if (res == -8){

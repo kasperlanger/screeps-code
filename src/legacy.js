@@ -9,7 +9,6 @@ const utils = require('utils')
 
 module.exports.loop = function () {
     utils.gc();
-    require('room.e22n27').run();
     const harvester = group.withName("harvester")
         .ensureCreeps(1, [WORK, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE])
         .executeAll(staticharvester.config(13,12))
@@ -44,10 +43,10 @@ module.exports.loop = function () {
     const room1 = Game.rooms.E22N26;
     const builders = group.withName('builders')
         .ensureCreeps(3, [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE])
-        .executeAll(builder.config(room2))
+        .executeAll(builder.run)
 
     const globalBuilders = group.withName('globalbuilders')
-        .ensureCreeps(2, [WORK, CARRY, CARRY, MOVE, MOVE, MOVE])
+        .ensureCreeps(5, [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE])
         .executeAll(builder.config(room2))
 
     const invader = group.withName("invader")

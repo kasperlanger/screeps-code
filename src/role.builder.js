@@ -9,31 +9,62 @@ var roleBuilder = {
             }
 
             if (utils.renew(creep)){ return }
-
+            if (creep.room.name !== buildRoom.name){
+              creep.moveTo(buildRoom.controller);
+            }
             if(creep.memory.building) {
-                const targets = buildRoom.find(FIND_CONSTRUCTION_SITES);
-                const controller = creep.room.controller
-                if (controller.ticksToDowngrade < 2000 || targets.length === 0){ //make sure we don't loose the controller
-                    if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE){
-                        creep.moveTo(controller, {visualizePathStyle: {stroke: '#00ff00'}});
-                    }
-                    creep.say("Ctrl upgr" +  controller.ticksToDowngrade);
-                    return;
+              const energyTarget = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: structure => {
+                  return (
+                    (structure.structureType == STRUCTURE_EXTENSION ||
+                      structure.structureType == STRUCTURE_SPAWN ||
+                      structure.structureType == STRUCTURE_TOWER) &&
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                  );
                 }
+              });
+              if (energyTarget) {
+                if (creep.transfer(energyTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                  creep.moveTo(energyTarget, { visualizePathStyle: { stroke: "#00ff00" } });
+                }
+                return;
+              }
+              const targets = buildRoom.find(FIND_CONSTRUCTION_SITES);
+              const controller = creep.room.controller;
+              if (controller.ticksToDowngrade < 2000 || targets.length === 0) {
+                //make sure we don't loose the controller
+                if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+                  creep.moveTo(controller, { visualizePathStyle: { stroke: "#00ff00" } });
+                }
+                creep.say("Ctrl upgr" + controller.ticksToDowngrade);
+                return;
+              }
 
-                creep.say("build:" + buildRoom.name)
-                if(targets.length) {
-                    if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-                    }
-                } else {
-                    console.log("Nothing to build in " + buildRoom)
-                    creep.moveTo(Game.flags.Idle)
+              creep.say("build:" + buildRoom.name);
+              if (targets.length) {
+                if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
+                  creep.moveTo(targets[0], { visualizePathStyle: { stroke: "#ffffff" } });
                 }
+              } else {
+                console.log("Nothing to build in " + buildRoom);
+                creep.moveTo(Game.flags.Idle);
+              }
             } else {
-                var sources = buildRoom.find(FIND_SOURCES, {filter: s => s.energy > 0});
-                if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#00f'}});
+                console.log("Looking for containres")
+                var target = creep.pos.findClosestByRange(FIND_STRUCTURES,
+                  {filter: s => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 50});
+
+                if (target){
+                  console.log("found target " + target)
+                  if(creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                      creep.moveTo(target, {visualizePathStyle: {stroke: '#00ff00'}});
+                      creep.say("Energy -> " + target)
+                  }
+                } else {
+                  var sources = buildRoom.find(FIND_SOURCES, {filter: s => s.energy > 0});
+                  if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+                      creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#00f'}});
+                  }
                 }
             }
         };

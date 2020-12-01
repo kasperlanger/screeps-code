@@ -1,4 +1,5 @@
 import * as Legacy from './legacy'
+import {run} from './rooms'
 
 export const loop = () => {
   console.log(`Current game tick is ${Game.time}`);
@@ -11,4 +12,6 @@ export const loop = () => {
   }
 
   Legacy.loop();
+
+  run({roomName: 'E22N27'});
 };
